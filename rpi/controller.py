@@ -16,6 +16,10 @@ def is_associate_time(today):
     if today.weekday() == 0 and today.hour >= 16:
         return True
 
+    # Tuesday access (LGBTQ + Ladies's night)
+    if today.weekday() == 1 and today.hour >= 18:
+        return True
+
     # Thursday evenings (open house night)
     if today.weekday() == 3 and today.hour >= 16:
         return True

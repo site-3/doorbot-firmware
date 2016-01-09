@@ -6,7 +6,7 @@ from datetime import datetime
 import csv
 
 board_port_name = "/dev/ttyAMA0"
-membership_file = "/home/pi/members.tsv"
+membership_file = "/home/pi/members.csv"
 log_file = "/home/pi/log.txt"
 
 def is_associate_time(today):
@@ -76,7 +76,7 @@ class Board(object):
 class Members(object):
     def __init__(self, filename=membership_file):
         f = open(filename, 'rb')
-        self.members = [i for i in csv.DictReader(f, delimiter='\t')]
+        self.members = [i for i in csv.DictReader(f, delimiter=',')]
 
     def get_by_tag(self, tag_id):
         for m in self.members:

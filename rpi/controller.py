@@ -86,12 +86,12 @@ class Members(object):
 
 def run():
     b = Board()
-    m = Members()
 
     log("started.")
 
     while True:
         tag = b.get_tag()
+        m = Members()
         member = m.get_by_tag(tag)
         now = datetime.now()
 

@@ -1,5 +1,12 @@
 # Doorbot Firmware
 
+## Work in progress !
+Code in the `flexible-roles` branch is still being tested and is not functional for now.
+Ultimately, it will allow custom access rules to be set for individual members, as well as a way
+to modify base rules for member types without having to change the code.
+
+## General description
+
 Firmware for the Open Access Standard Rev4 Board used for the Site 3 Doorbot.
 
 See http://www.accxproducts.com/wiki/index.php?title=Open_Access_4.0 for the original board information.

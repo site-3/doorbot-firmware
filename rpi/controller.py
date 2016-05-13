@@ -200,6 +200,7 @@ def run():
     while True:
         tag = b.get_tag()
         m = Members()
+        roles = Roles()
         member = m.get_by_tag(tag)
         now = datetime.now()
 
@@ -209,19 +210,13 @@ def run():
             log("Could not find member with tag %s." % (tag))
             continue
 
-        if (member['Plan'] in ['Core', 'Distance', 'Grouped', 'Free']):
-            log("Granted access to %s because they are a paid core member" % member['Email'])
+        has_access, reason = roles.doorcheck_by_plan(member['Plan'])
+        
+        if (has_access):
             b.unlock()
-            continue
-        elif member["Plan"] == "Associate":
-            if is_associate_time(now):
-                log("Granted access to %s because they are an associate" % member['Email'])
-                b.unlock()
-            else:
-                log("Refused access to %s because it is outside allowed associate hours" % member['Email'])
-            continue
-
-        log("Refused access to %s" % member['Email'])
+            log("Granted access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
+        else:
+            log("Denied access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
 
 
 # This is used to test this script without using the actual board, RFID reader or door lock.

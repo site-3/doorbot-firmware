@@ -55,7 +55,7 @@ Rules are specified as a list of strings, of the following format
  * `ALWAYS` : Access is always granted (e.g. for core members)
  * `NEVER` : Access is never granted (e.g. for banned members)
  * `MON` : Access can be granted to a whole day (e.g. MON for every Monday).
-   Days can be MON, TUE, WED, THU, FRI, SAT or SUN.
+   Days can be `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT` or `SUN`.
  * `MON 16:00-24:00` : Access can be granted to a specified time interval (in 24 hour format)
 Note that if a rule includes multiple days, those will be separated by commas. Thus the rule
 needs to be delimited by double quotes in the CSV to avoid confusion.

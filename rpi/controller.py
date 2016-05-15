@@ -89,6 +89,18 @@ def check_access(rules, time=datetime.now()):
                 
     return result, reason
 
+# This function processes an access rule string
+# Extracting day of the week, start and end time
+def process_rules(times):
+    regex=re.compile('(ALWAYS|NEVER|\w{3})(?: *(\d{1,2}:\d{2}) *- *(\d{1,2}:\d{2}))?')
+    # Matches strings of the form
+    # ALWAYS
+    # MON 16:00-24:00
+    # TUE
+    # try it out at https://regex101.com/r/oT6zF2/1
+    
+    return map(regex.findall, times.split(','))
+
 # These functions are used to process the keyfob IDs
 def wiegandify(_id):
     '''Performs the same 3-byte truncation that your NFC wiegand readers do.'''
@@ -162,32 +174,24 @@ class Members(object):
 class Roles(object):
     def __init__(self, filename=roles_file):
            f = open(filename, 'rb')
-           #self.roles = [i for i in csv.DictReader(f, delimiter=',')]
-           #print self.roles
-           
-           regex=re.compile('(ALWAYS|NEVER|\w{3})(?: *(\d{1,2}:\d{2}) *- *(\d{1,2}:\d{2}))?')
-           # Matches strings of the form
-           # ALWAYS
-           # MON 16:00-24:00
-           # TUE
-           # try it out at https://regex101.com/r/oT6zF2/1
            
            self.rules = {}
            
            for line in csv.DictReader(f, delimiter=','):
                plan = line['Plan']
+               times = line['Open times']
                
-               times = map(regex.findall, line['Open times'].split(','))
-               
-               self.rules.setdefault(plan,[]).append(times)
+               self.rules.setdefault(plan,[]).append(process_rules(times))
            #print self.rules
-           
+    
     def get_by_plan(self, plan):
         return self.rules[plan]
-        
+    
     def doorcheck_by_plan(self, plan, time=datetime.now()):
         return check_access(self.rules[plan], time)
-        
+    
+    def doorcheck_by_rules(self, string, time=datetime.now()):
+        return check_access(process_rules(string), time)
 
 
 # # # # THIS IS THE MAIN FUNCTION # # # #
@@ -210,7 +214,11 @@ def run():
             log("Could not find member with tag %s." % (tag))
             continue
 
-        has_access, reason = roles.doorcheck_by_plan(member['Plan'])
+        if (member['Custom access']):
+            has_access, reason = roles.doorcheck_by_rules(member['Custom access'])
+            log("Custom rules have been defined for %s. Overriding default %s rules." % (member['Name'], member['Plan']))
+        else:
+            has_access, reason = roles.doorcheck_by_plan(member['Plan'])
         
         if (has_access):
             b.unlock()
@@ -230,10 +238,11 @@ def testauth(sampletag):
 
     log("Tag scanned: %s %s" % (tag, wiegandify(tag)))
     
-    #print "Identified member ", member['Name'], " of type ", member['Plan']
-    #print roles.get_by_plan(member['Plan'])
-    
-    has_access, reason = roles.doorcheck_by_plan(member['Plan'])
+    if (member['Custom access']):
+        has_access, reason = roles.doorcheck_by_rules(member['Custom access'])
+        log("Custom rules have been defined for %s. Overriding default %s rules." % (member['Name'], member['Plan']))
+    else:
+        has_access, reason = roles.doorcheck_by_plan(member['Plan'])
     
     if (has_access):
         print "Sesame!"

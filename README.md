@@ -39,10 +39,10 @@ needs to be delimited by double quotes in the CSV to avoid confusion.
 
 Example:
 ```
-    Name  , Plan      , RFID     , Custom access
-	Alice , Core      , 66cd0b11 ,
-	Bob   , Associate , 245d22fe ,
-	Carl  , Associate , 234fe35a , "WED 8:00-16:00,FRI"
+Name  , Plan      , RFID     , Custom access
+Alice , Core      , 66cd0b11 ,
+Bob   , Associate , 245d22fe ,
+Carl  , Associate , 234fe35a , "WED 8:00-16:00,FRI"
 ```
 
 ### Plans and access rules database
@@ -62,7 +62,7 @@ needs to be delimited by double quotes in the CSV to avoid confusion.
 
 Example:
 ```
-    Plan      , Open times
-	Core      , ALWAYS
-	Associate , "MON 16:00-24:00, TUE 18:00-24:00, THU 16:00-24:00, SAT, SUN"
+Plan      , Open times
+Core      , ALWAYS
+Associate , "MON 16:00-24:00, TUE 18:00-24:00, THU 16:00-24:00, SAT, SUN"
 ```

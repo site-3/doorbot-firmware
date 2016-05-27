@@ -48,6 +48,6 @@ for infile in sys.argv[1:]:
                 print("ERROR: %s doesn't look to be a proper membership or rules file." % infile)
                 break
     else:
-        print("ERROR: can't find file %s" % infile)
+        print("ERROR: Can't find file %s" % infile)
         continue
 

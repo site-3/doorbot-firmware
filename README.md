@@ -66,3 +66,22 @@ Plan      , Open times
 Core      , ALWAYS
 Associate , "MON 16:00-24:00, TUE 18:00-24:00, THU 16:00-24:00, SAT, SUN"
 ```
+
+### Testing
+Whenever a change is made in either the `members.csv` or `roles.csv` files,
+it's a good idea to test those file to see if all access rules are understood by the controller.
+The `rpi/doorbot-test.py` script can be used to do so.
+
+Usage:
+```
+$ python doorbot-test.py <files-to-test>
+```
+Example:
+```
+$ python rpi/doorbot-test.py testing/members.csv testing/roles.csv missing-file.csv testing/log.txt 
+ERROR: Custom access rule on line 4 of file testing/members.csv is invalid.
+ERROR: Missing or invalid rule on line 5 of file testing/roles.csv
+ERROR: Missing or invalid rule on line 6 of file testing/roles.csv
+ERROR: can't find file missing-file.csv
+ERROR: testing/log.txt doesn't look to be a proper membership or rules file.
+```

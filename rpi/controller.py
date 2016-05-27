@@ -92,7 +92,7 @@ def check_access(rules, time=datetime.now()):
 # This function processes an access rule string
 # Extracting day of the week, start and end time
 def process_rules(times):
-    regex=re.compile('(ALWAYS|NEVER|\w{3})(?: *(\d{1,2}:\d{2}) *- *(\d{1,2}:\d{2}))?')
+    regex=re.compile('(ALWAYS|NEVER|MON|TUE|WED|THU|FRI|SAT|SUN)(?: *(\d{1,2}:\d{2}) *- *(\d{1,2}:\d{2}))?')
     # Matches strings of the form
     # ALWAYS
     # MON 16:00-24:00

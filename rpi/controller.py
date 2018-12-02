@@ -8,7 +8,7 @@
 #
 # Original code by Paul Walker (https://github.com/pauldw/door-troll-firmware)
 # Edited by Kate Murphy - hi@kate.io - Jan 2016
-# Edited by Thomas Guignard - tom@timtom.ca - May 2016
+# Edited by Thomas Guignard - tom@timtom.ca - May 2016 & Dec 2018
 
 import serial
 import time
@@ -17,11 +17,11 @@ import csv
 import re
 
 board_port_name = "/dev/ttyAMA0"
-#membership_file = "/home/pi/members.csv"
-#log_file = "/home/pi/log.txt"
-membership_file = "../testing/members.csv"
-roles_file = "../testing/roles.csv"
-log_file = "../testing/log.txt"
+membership_file = "/home/pi/members.csv"
+log_file = "/home/pi/log.txt"
+#membership_file = "../testing/members.csv"
+roles_file = "/home/pi/roles.csv"
+#log_file = "../testing/log.txt"
 
 # Set this to True during debugging, and to False during normal operation, to manage log size
 verbose_log = True

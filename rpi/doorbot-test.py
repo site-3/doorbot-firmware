@@ -11,7 +11,7 @@
 # 
 # doorbot-test.py members.csv roles.csv
 #
-# by Thomas Guignard - tom@timtom.ca - May 2016
+# by Thomas Guignard - tom@timtom.ca - Dec 2018
 
 import sys
 import csv
@@ -24,8 +24,10 @@ for infile in sys.argv[1:]:
     if os.path.isfile(infile):
         f = open(infile, 'rb')
         for index,line in enumerate(csv.DictReader(f, delimiter=',')):
+            #print("Processing line #%d: %s" % (index, line))
             if 'Open times' in line:
                 # Looks like this file is a rules file
+                #print("Testing rules file: %s" % infile)
                 read_rules = controller.process_rules(line['Open times'])
                 #print read_rules
                 for rule in read_rules:
@@ -36,8 +38,10 @@ for infile in sys.argv[1:]:
                         print("ERROR: %s is not a valid keyword on line %d of file %s" % (rule[0][0], index+2, infile))
                         break
                 
-            elif 'Custom access' in line:
+            elif 'Email' in line:
                 # Looks like this file is a membership file
+                #print("Testing membership file: %s" % infile)
+                #print(line['Custom access'])
                 read_rules = controller.process_rules(line['Custom access'])
                 for rule in read_rules:
                     if (len(rule) == 0 and not len(line['Custom access']) == 0):

@@ -17,12 +17,12 @@ import csv
 import re
 
 board_port_name = "/dev/ttyAMA0"
-membership_file = "/home/pi/members.csv"
-log_file = "/home/pi/log.txt"
-roles_file = "/home/pi/roles.csv"
-#log_file = "testing/log.txt"
-#membership_file = "testing/members.csv"
-#roles_file = "testing/rules.csv"
+#membership_file = "/home/pi/members.csv"
+#log_file = "/home/pi/log.txt"
+#roles_file = "/home/pi/roles.csv"
+log_file = "testing/log.txt"
+membership_file = "testing/members.csv"
+roles_file = "testing/rules.csv"
 
 # Set this to True during debugging, and to False during normal operation, to manage log size
 verbose_log = True
@@ -47,11 +47,11 @@ def check_access(rules, time=datetime.now()):
     # Don't grant access by default
     result = False
     
-    if rules[0][0][0][0] == 'ALWAYS':
+    if rules[0][0][0] == 'ALWAYS':
         # Access is always granted for that person
         reason = "access is always granted"
         result = True
-    elif rules[0][0][0][0] == 'NEVER':
+    elif rules[0][0][0] == 'NEVER':
         # Access is never granted for that person
         reason = "access is never granted"
         result = False
@@ -62,7 +62,7 @@ def check_access(rules, time=datetime.now()):
         thishour = time.hour
         thisminute = time.minute
         
-        for rule in rules[0]:
+        for rule in rules:
             # Check day
             if rule[0][0] == days[thisday]:
                 # Day matches
@@ -182,8 +182,7 @@ class Roles(object):
                plan = line['Plan']
                times = line['Open times']
                
-               self.rules.setdefault(plan,[]).append(process_rules(times))
-           #print self.rules
+               self.rules[plan] = process_rules(times)
     
     def get_by_plan(self, plan):
         return self.rules[plan]
@@ -256,6 +255,8 @@ def testauth(sampletag):
 # This will determine which function to run when the script is called.
 # For normal operation, it should fire the run() function.
 if __name__ == "__main__":
-    run()
-    #testauth('BCD64') # Test core member (Kate)
-    #testauth('325C97') # Test associate member
+    #run()
+    testauth('3CC24') # Test associate member (Thomas)
+    testauth('E83471') # Test core member (Kris)
+    testauth('7C434') # Test core member (Jacob)
+    

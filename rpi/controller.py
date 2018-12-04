@@ -12,7 +12,7 @@
 
 import serial
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
 import re
 
@@ -213,13 +213,22 @@ def run():
         if member == None:
             log("Could not find member with tag %s." % (tag))
             continue
-
+        
+        # Check the rules for this member
         if (member['Custom access']):
             has_access, reason = roles.doorcheck_by_rules(member['Custom access'])
             log("Custom rules have been defined for %s. Overriding default %s rules." % (member['Name'], member['Plan']))
         else:
             has_access, reason = roles.doorcheck_by_plan(member['Plan'])
         
+        # Check that this member is still active
+        if (member['Expiry']):
+            if (datetime.strptime(member['Expiry'], "%Y-%m-%d") + timedelta(1) < datetime.today()):
+                # Membership expires at 23:59:59 of the day indicated in the 'Expiry' column
+                has_access = False
+                reason = "their access expired on %s at 23:59:59" % member['Expiry']
+        
+        # Grant access
         if (has_access):
             b.unlock()
             log("Granted access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
@@ -238,12 +247,21 @@ def testauth(sampletag):
 
     log("Tag scanned: %s %s" % (tag, wiegandify(tag)))
     
+    # Check the rules for this member
     if (member['Custom access']):
         has_access, reason = roles.doorcheck_by_rules(member['Custom access'])
         log("Custom rules have been defined for %s. Overriding default %s rules." % (member['Name'], member['Plan']))
     else:
         has_access, reason = roles.doorcheck_by_plan(member['Plan'])
     
+    # Check that this member is still active
+    if (member['Expiry']):
+        if (datetime.strptime(member['Expiry'], "%Y-%m-%d") + timedelta(1) < datetime.today()):
+            # Membership expires at 23:59:59 of the day indicated in the 'Expiry' column
+            has_access = False
+            reason = "their access expired on %s at 23:59:59" % member['Expiry']
+    
+    # Grant access
     if (has_access):
         print "Sesame!"
         log("Granted access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))

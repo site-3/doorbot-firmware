@@ -17,12 +17,9 @@ import csv
 import re
 
 board_port_name = "/dev/ttyAMA0"
-#membership_file = "/home/pi/members.csv"
-#log_file = "/home/pi/log.txt"
-#roles_file = "/home/pi/roles.csv"
-log_file = "testing/log.txt"
-membership_file = "testing/members.csv"
-roles_file = "testing/rules.csv"
+membership_file = "/home/pi/members.csv"
+log_file = "/home/pi/log.txt"
+roles_file = "/home/pi/roles.csv"
 
 # Set this to True during debugging, and to False during normal operation, to manage log size
 verbose_log = True
@@ -273,8 +270,5 @@ def testauth(sampletag):
 # This will determine which function to run when the script is called.
 # For normal operation, it should fire the run() function.
 if __name__ == "__main__":
-    #run()
-    testauth('3CC24') # Test associate member (Thomas)
-    testauth('E83471') # Test core member (Kris)
-    testauth('7C434') # Test core member (Jacob)
+    run()
     

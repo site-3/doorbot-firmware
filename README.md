@@ -28,25 +28,26 @@ is in the `rpi` directory. It is run on the Raspberry Pi.
 
 ### Members database
 Members are defined in a `members.csv` file that should at least include the following columns:
-* Name - Can be any text
-* Plan - The plan types and associated access rules are defined in `roles.csv`, see below.
-* RFID - Member fob information
-* Custom access (optional) - Custom rules defined here will **override** the default rules associated with that member's
-  plan.
-Additional columns (e.g. Email), will be ignored by the controller.
-Note that if the custom access rule includes multiple days, those will be separated by commas. Thus the custom rule
-needs to be delimited by double quotes in the CSV to avoid confusion.
+* **Name** - this is used to log the coming and going of members
+* **Plan** - this needs to be one of the values defined in the `rules.csv` file (see below)
+* **RFID** - the tag ID assigned to that member
+* **Custom access**
+  * if empty, shop access for that member is granted according to the access rules for the `Plan`
+  * otherwise, custom access rules can be set for that member using the same format used in `rules.csv` (see below). If custom access rules are set, they _replace_ those of the `Plan` for that member. If you want to extend the default rules (e.g. add a day), you need to specify the entire set of days you want to give access to that member.
+  * this can be set to `NEVER` to (temporarily) ban a member from accessing the shop
+* **Expiry** - can be either empty or contain a date in the `YYYY-MM-DD` format to indicate when access to the shop expires for that member. Access will expire at 23:59 (11:59PM) on the date indicated in this field.
+The file can have as many other columns as needed for other purposes (e.g. payment processing) as long as they don't duplicate the above column names.
 
 Example:
 ```
-Name  , Plan      , RFID     , Custom access
-Alice , Core      , 66cd0b11 ,
-Bob   , Associate , 245d22fe ,
-Carl  , Associate , 234fe35a , "WED 8:00-16:00,FRI"
+Name  , Plan      , RFID     , Custom access        , Expiry
+Alice , Core      , 66cd0b11 ,                      , 2018-12-31
+Bob   , Associate , 245d22fe ,                      ,
+Carl  , Associate , 234fe35a , "WED 8:00-16:00,FRI" ,
 ```
 
 ### Plans and access rules database
-Default access rules associated with the different plans are defined in a `roles.csv` file that should
+Default access rules associated with the different plans are defined in a `rules.csv` file that should
 at least include the following columns:
 * Plan - The plan type. Should correspond to the values entered in the members database (see above).
 * Open times - Default access rules associated with that plan.

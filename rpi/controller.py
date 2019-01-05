@@ -189,11 +189,11 @@ class Roles(object):
     def get_by_plan(self, plan):
         return self.rules[plan]
     
-    def doorcheck_by_plan(self, plan, time=datetime.now()):
-        return check_access(self.rules[plan], time)
+    def doorcheck_by_plan(self, plan):
+        return check_access(self.rules[plan])
     
-    def doorcheck_by_rules(self, string, time=datetime.now()):
-        return check_access(process_rules(string), time)
+    def doorcheck_by_rules(self, string):
+        return check_access(process_rules(string))
 
 
 # # # # THIS IS THE MAIN FUNCTION # # # #

@@ -30,7 +30,7 @@ verbose_log = True
 #   NEVER                     : Access is never granted (e.g. for banned members)
 #   MON                       : Access can be granted to a whole day (e.g. MON for every Monday)
 #   MON 16:00-24:00           : Access can be granted to a specified time interval (in 24 hour format)
-def check_access(rules, time=datetime.now()):
+def check_access(rules, time=None):
     days = {
     0 : "MON",
     1 : "TUE",
@@ -54,6 +54,11 @@ def check_access(rules, time=datetime.now()):
         result = False
     else:
         # Day and time rules are associated with that person
+        
+        # If a time isn't passed as argument, check against the current time
+        if time is None:
+            time=datetime.now()
+        
         # Process rules
         thisday = time.weekday()
         thishour = time.hour

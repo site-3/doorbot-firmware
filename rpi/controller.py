@@ -18,7 +18,7 @@ import re
 
 board_port_name = "/dev/ttyAMA0"
 membership_file = "/home/pi/members.csv"
-log_file = "/home/pi/log.txt"
+log_file = "/home/pi/doorbotlog/log.txt"
 roles_file = "/home/pi/rules.csv"
 
 # Set this to True during debugging, and to False during normal operation, to manage log size

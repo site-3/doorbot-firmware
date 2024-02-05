@@ -1,2 +1,4 @@
 testing/
 *.pyc
+.vscode/settings.json
+rpi/test_files/test_logs.txt

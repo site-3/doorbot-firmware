@@ -162,10 +162,10 @@ class Members(object):
 
     def get_by_tag(self, tag_id):
         for m in self.members:
-            #print "Checking tag ", tag_id, " against member ", m['Name']
-            #print "RFID: ", m['RFID']
-            #print "format_id: ", format_id(m['RFID'])
-            #print "wiegandify: ", wiegandify(format_id(m['RFID']))
+            # print("Checking tag ", tag_id, " against member ", m['Name'])
+            # print("RFID: ", m['RFID'])
+            # print("format_id: ", format_id(m['RFID']))
+            # print("wiegandify: ", wiegandify(format_id(m['RFID'])))
             if tag_id == wiegandify(format_id(m['RFID'])):
                 return m
         return None
@@ -205,31 +205,11 @@ def run():
 
     while True:
         tag = b.get_tag()
-        m = Members()
-        roles = Roles()
-        member = m.get_by_tag(tag)
-        now = datetime.now()
-
-        log("Tag scanned: %s %s" % (tag, wiegandify(tag)))
-
-        if member == None:
-            log("Could not find member with tag %s." % (tag))
+        has_access, reason = test_auth(tag)
+        member = Members().get_by_tag(tag)
+        if member is None:
+            log(reason)
             continue
-        
-        # Check the rules for this member
-        if (member['Custom access']):
-            has_access, reason = roles.doorcheck_by_rules(member['Custom access'])
-            log("Custom rules have been defined for %s. Overriding default %s rules." % (member['Name'], member['Plan']))
-        else:
-            has_access, reason = roles.doorcheck_by_plan(member['Plan'])
-        
-        # Check that this member is still active
-        if (member['Expiry']):
-            if (datetime.strptime(member['Expiry'], "%Y-%m-%d") + timedelta(1) < datetime.today()):
-                # Membership expires at 23:59:59 of the day indicated in the 'Expiry' column
-                has_access = False
-                reason = "their access expired on %s at 23:59:59" % member['Expiry']
-        
         # Grant access
         if (has_access):
             b.unlock()
@@ -239,15 +219,17 @@ def run():
 
 
 # This is used to test this script without using the actual board, RFID reader or door lock.
-def testauth(sampletag):
+def test_auth(tag, members:Members = None, roles:Roles=None):
+    if members is None:
+        members = Members()
+    if roles is None:
+        roles = Roles()
     # Function used to test the authentication code
-    
-    tag = sampletag   
-    members = Members()
-    roles = Roles()
     member = members.get_by_tag(tag)
 
     log("Tag scanned: {} {}".format(tag, wiegandify(tag)))
+    if member == None:
+        return False, "Could not find member with tag {}.".format(tag)
     
     # Check the rules for this member
     if (member['Custom access']):
@@ -261,16 +243,8 @@ def testauth(sampletag):
         if (datetime.strptime(member['Expiry'], "%Y-%m-%d") + timedelta(1) < datetime.today()):
             # Membership expires at 23:59:59 of the day indicated in the 'Expiry' column
             has_access = False
-            reason = "their access expired on %s at 23:59:59" % member['Expiry']
-    
-    # Grant access
-    if (has_access):
-        print "Sesame!"
-        log("Granted access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
-    else:
-        print "Go away"
-        log("Denied access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
-    
+            reason = "their access expired on {} at 23:59:59".format(member['Expiry'])
+    return has_access, reason
 
 # This will determine which function to run when the script is called.
 # For normal operation, it should fire the run() function.

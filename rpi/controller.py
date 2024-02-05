@@ -30,7 +30,7 @@ verbose_log = True
 #   NEVER                     : Access is never granted (e.g. for banned members)
 #   MON                       : Access can be granted to a whole day (e.g. MON for every Monday)
 #   MON 16:00-24:00           : Access can be granted to a specified time interval (in 24 hour format)
-def check_access(rules, time=None):
+def check_access(rules, time:datetime=None):
     days = {
     0 : "MON",
     1 : "TUE",
@@ -43,7 +43,7 @@ def check_access(rules, time=None):
     
     # Don't grant access by default
     result = False
-    
+    rules = list(rules)
     if rules[0][0][0] == 'ALWAYS':
         # Access is always granted for that person
         reason = "access is always granted"
@@ -157,7 +157,7 @@ class Board(object):
 # the get_by_tag method will return the member info corresponding to a keyfob
 class Members(object):
     def __init__(self, filename=membership_file):
-        f = open(filename, 'rb')
+        f = open(filename, 'r')
         self.members = [i for i in csv.DictReader(f, delimiter=',')]
 
     def get_by_tag(self, tag_id):
@@ -176,7 +176,7 @@ class Members(object):
 # at the specified time.
 class Roles(object):
     def __init__(self, filename=roles_file):
-           f = open(filename, 'rb')
+           f = open(filename, 'r')
            
            self.rules = {}
            
@@ -233,9 +233,9 @@ def run():
         # Grant access
         if (has_access):
             b.unlock()
-            log("Granted access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
+            log("Granted access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason))
         else:
-            log("Denied access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
+            log("Denied access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason))
 
 
 # This is used to test this script without using the actual board, RFID reader or door lock.
@@ -247,12 +247,12 @@ def testauth(sampletag):
     roles = Roles()
     member = members.get_by_tag(tag)
 
-    log("Tag scanned: %s %s" % (tag, wiegandify(tag)))
+    log("Tag scanned: {} {}".format(tag, wiegandify(tag)))
     
     # Check the rules for this member
     if (member['Custom access']):
         has_access, reason = roles.doorcheck_by_rules(member['Custom access'])
-        log("Custom rules have been defined for %s. Overriding default %s rules." % (member['Name'], member['Plan']))
+        log("Custom rules have been defined for {}. Overriding default {} rules.".format(member['Name'], member['Plan']))
     else:
         has_access, reason = roles.doorcheck_by_plan(member['Plan'])
     

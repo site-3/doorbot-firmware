@@ -60,33 +60,33 @@ def check_access(rules, time:datetime=None):
             time=datetime.now()
         
         # Process rules
-        thisday = time.weekday()
-        thishour = time.hour
-        thisminute = time.minute
+        thisDay = time.weekday()
+        thisHour = time.hour
+        thisMinute = time.minute
         
         for rule in rules:
             # Check day
-            if rule[0][0] == days[thisday]:
+            if rule[0][0] == days[thisDay]:
                 # Day matches
                 if not rule[0][1]:
                     # If times are not specified, access is granted for that whole day
                     result = True
                 else:
                     # If times are specified, check that we are within the interval
-                    starthour, startminute = map(int, rule[0][1].split(':'))
-                    endhour, endminute = map(int, rule[0][2].split(':'))
+                    startHour, startMinute = map(int, rule[0][1].split(':'))
+                    endHour, endMinute = map(int, rule[0][2].split(':'))
                     
-                    if (starthour*60+startminute <= thishour*60+thisminute <= endhour*60+endminute):
+                    if (startHour*60+startMinute <= thisHour*60+thisMinute <= endHour*60+endMinute):
                         result = True
         
         if (result):
             if (verbose_log):
-                reason = "%s (%s) is during allowed hours %s" % (time, days[thisday], rules)
+                reason = "%s (%s) is during allowed hours %s" % (time, days[thisDay], rules)
             else:
                 reason = "it is during allowed hours"
         else:
             if (verbose_log):
-                reason = "%s (%s) is not during allowed hours %s" % (time, days[thisday], rules)
+                reason = "%s (%s) is not during allowed hours %s" % (time, days[thisDay], rules)
             else:
                 reason = "it is outside allowed hours"
                 

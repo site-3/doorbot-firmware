@@ -1,0 +1,3 @@
+Name,Email,Plan,Paid until,Stripe ID,RFID,Notes,Locker,Custom access,Expiry
+John F Kennedy, jfk@test.fakeEmail,Core,,,a1868fff, notes space,locker,,1963-11-22,
+Jonah, fakeJonah@site3.ca,Core,,,a1868111, notes,,,,

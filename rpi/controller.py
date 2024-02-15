@@ -30,7 +30,7 @@ verbose_log = True
 #   NEVER                     : Access is never granted (e.g. for banned members)
 #   MON                       : Access can be granted to a whole day (e.g. MON for every Monday)
 #   MON 16:00-24:00           : Access can be granted to a specified time interval (in 24 hour format)
-def check_access(rules, time=None):
+def check_access(rules, time:datetime=None):
     days = {
     0 : "MON",
     1 : "TUE",
@@ -43,7 +43,7 @@ def check_access(rules, time=None):
     
     # Don't grant access by default
     result = False
-    
+    rules = list(rules)
     if rules[0][0][0] == 'ALWAYS':
         # Access is always granted for that person
         reason = "access is always granted"
@@ -60,33 +60,33 @@ def check_access(rules, time=None):
             time=datetime.now()
         
         # Process rules
-        thisday = time.weekday()
-        thishour = time.hour
-        thisminute = time.minute
+        thisDay = time.weekday()
+        thisHour = time.hour
+        thisMinute = time.minute
         
         for rule in rules:
             # Check day
-            if rule[0][0] == days[thisday]:
+            if rule[0][0] == days[thisDay]:
                 # Day matches
                 if not rule[0][1]:
                     # If times are not specified, access is granted for that whole day
                     result = True
                 else:
                     # If times are specified, check that we are within the interval
-                    starthour, startminute = map(int, rule[0][1].split(':'))
-                    endhour, endminute = map(int, rule[0][2].split(':'))
+                    startHour, startMinute = map(int, rule[0][1].split(':'))
+                    endHour, endMinute = map(int, rule[0][2].split(':'))
                     
-                    if (starthour*60+startminute <= thishour*60+thisminute <= endhour*60+endminute):
+                    if (startHour*60+startMinute <= thisHour*60+thisMinute <= endHour*60+endMinute):
                         result = True
         
         if (result):
             if (verbose_log):
-                reason = "%s (%s) is during allowed hours %s" % (time, days[thisday], rules)
+                reason = "%s (%s) is during allowed hours %s" % (time, days[thisDay], rules)
             else:
                 reason = "it is during allowed hours"
         else:
             if (verbose_log):
-                reason = "%s (%s) is not during allowed hours %s" % (time, days[thisday], rules)
+                reason = "%s (%s) is not during allowed hours %s" % (time, days[thisDay], rules)
             else:
                 reason = "it is outside allowed hours"
                 
@@ -157,15 +157,15 @@ class Board(object):
 # the get_by_tag method will return the member info corresponding to a keyfob
 class Members(object):
     def __init__(self, filename=membership_file):
-        f = open(filename, 'rb')
+        f = open(filename, 'r')
         self.members = [i for i in csv.DictReader(f, delimiter=',')]
 
     def get_by_tag(self, tag_id):
         for m in self.members:
-            #print "Checking tag ", tag_id, " against member ", m['Name']
-            #print "RFID: ", m['RFID']
-            #print "format_id: ", format_id(m['RFID'])
-            #print "wiegandify: ", wiegandify(format_id(m['RFID']))
+            # print("Checking tag ", tag_id, " against member ", m['Name'])
+            # print("RFID: ", m['RFID'])
+            # print("format_id: ", format_id(m['RFID']))
+            # print("wiegandify: ", wiegandify(format_id(m['RFID'])))
             if tag_id == wiegandify(format_id(m['RFID'])):
                 return m
         return None
@@ -176,7 +176,7 @@ class Members(object):
 # at the specified time.
 class Roles(object):
     def __init__(self, filename=roles_file):
-           f = open(filename, 'rb')
+           f = open(filename, 'r')
            
            self.rules = {}
            
@@ -205,54 +205,36 @@ def run():
 
     while True:
         tag = b.get_tag()
-        m = Members()
-        roles = Roles()
-        member = m.get_by_tag(tag)
-        now = datetime.now()
-
-        log("Tag scanned: %s %s" % (tag, wiegandify(tag)))
-
-        if member == None:
-            log("Could not find member with tag %s." % (tag))
+        has_access, reason = test_auth(tag)
+        member = Members().get_by_tag(tag)
+        if member is None:
+            log(reason)
             continue
-        
-        # Check the rules for this member
-        if (member['Custom access']):
-            has_access, reason = roles.doorcheck_by_rules(member['Custom access'])
-            log("Custom rules have been defined for %s. Overriding default %s rules." % (member['Name'], member['Plan']))
-        else:
-            has_access, reason = roles.doorcheck_by_plan(member['Plan'])
-        
-        # Check that this member is still active
-        if (member['Expiry']):
-            if (datetime.strptime(member['Expiry'], "%Y-%m-%d") + timedelta(1) < datetime.today()):
-                # Membership expires at 23:59:59 of the day indicated in the 'Expiry' column
-                has_access = False
-                reason = "their access expired on %s at 23:59:59" % member['Expiry']
-        
         # Grant access
         if (has_access):
             b.unlock()
-            log("Granted access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
+            log("Granted access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason))
         else:
-            log("Denied access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
+            log("Denied access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason))
 
 
 # This is used to test this script without using the actual board, RFID reader or door lock.
-def testauth(sampletag):
+def test_auth(tag, members:Members = None, roles:Roles=None):
+    if members is None:
+        members = Members()
+    if roles is None:
+        roles = Roles()
     # Function used to test the authentication code
-    
-    tag = sampletag   
-    members = Members()
-    roles = Roles()
     member = members.get_by_tag(tag)
 
-    log("Tag scanned: %s %s" % (tag, wiegandify(tag)))
+    log("Tag scanned: {} {}".format(tag, wiegandify(tag)))
+    if member == None:
+        return False, "Could not find member with tag {}.".format(tag)
     
     # Check the rules for this member
     if (member['Custom access']):
         has_access, reason = roles.doorcheck_by_rules(member['Custom access'])
-        log("Custom rules have been defined for %s. Overriding default %s rules." % (member['Name'], member['Plan']))
+        log("Custom rules have been defined for {}. Overriding default {} rules.".format(member['Name'], member['Plan']))
     else:
         has_access, reason = roles.doorcheck_by_plan(member['Plan'])
     
@@ -261,16 +243,8 @@ def testauth(sampletag):
         if (datetime.strptime(member['Expiry'], "%Y-%m-%d") + timedelta(1) < datetime.today()):
             # Membership expires at 23:59:59 of the day indicated in the 'Expiry' column
             has_access = False
-            reason = "their access expired on %s at 23:59:59" % member['Expiry']
-    
-    # Grant access
-    if (has_access):
-        print "Sesame!"
-        log("Granted access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
-    else:
-        print "Go away"
-        log("Denied access to %s (of type %s) because %s" % (member['Name'], member['Plan'], reason))
-    
+            reason = "their access expired on {} at 23:59:59".format(member['Expiry'])
+    return has_access, reason
 
 # This will determine which function to run when the script is called.
 # For normal operation, it should fire the run() function.

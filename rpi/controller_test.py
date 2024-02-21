@@ -2,6 +2,7 @@
 #
 
 
+from rpi import logger
 import pytest
 
 import controller
@@ -28,8 +29,10 @@ def test_good():
 
 
 def local_test_auth(tag):
+    logger.log_folder="rpi/test_files/test_logs/"
+    log = logger.Logger(5)
     controller.log_file = "rpi/test_files/test_logs.txt"
     members = controller.Members(filename="rpi/test_files/testMembers.csv")
     roles = controller.Roles(filename="rpi/test_files/testRoles.csv")
-    ok, reason = controller.test_auth(wiegandify(tag), members, roles)
+    ok, reason = controller.test_auth(wiegandify(tag), log, members, roles)
     return ok, reason

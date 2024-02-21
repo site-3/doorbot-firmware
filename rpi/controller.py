@@ -15,10 +15,10 @@ import time
 from datetime import datetime, timedelta
 import csv
 import re
+from logger import Logger
 
 board_port_name = "/dev/ttyAMA0"
 membership_file = "/home/pi/members.csv"
-log_file = "/home/pi/doorbotlog/log.txt"
 roles_file = "/home/pi/rules.csv"
 
 # Set this to True during debugging, and to False during normal operation, to manage log size
@@ -120,12 +120,6 @@ def format_id(_id):
     capitalized = "".join([c.capitalize() for c in padded])
     return capitalized
 
-# This function writes a timestamped line in the logfile
-def log(message):
-    f = open(log_file, "a")
-    f.write("[%s] %s\n" % (time.ctime(), message))
-    f.close()
-
 
 # This class is used to communicate with the Arduino board 
 # that processes the RFID reader
@@ -162,10 +156,6 @@ class Members(object):
 
     def get_by_tag(self, tag_id):
         for m in self.members:
-            # print("Checking tag ", tag_id, " against member ", m['Name'])
-            # print("RFID: ", m['RFID'])
-            # print("format_id: ", format_id(m['RFID']))
-            # print("wiegandify: ", wiegandify(format_id(m['RFID'])))
             if tag_id == wiegandify(format_id(m['RFID'])):
                 return m
         return None
@@ -200,26 +190,26 @@ class Roles(object):
 # It runs all the time during normal operation
 def run():
     b = Board()
-
-    log("started.")
+    l = Logger(0)
+    l.log("started.", verbose=4)
 
     while True:
         tag = b.get_tag()
         has_access, reason = test_auth(tag)
         member = Members().get_by_tag(tag)
         if member is None:
-            log(reason)
+            l.log(reason, verbose=2)
             continue
         # Grant access
         if (has_access):
             b.unlock()
-            log("Granted access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason))
+            l.log("Granted access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason), verbose=1)
         else:
-            log("Denied access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason))
+            l.log("Denied access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason), verbose=1)
 
 
 # This is used to test this script without using the actual board, RFID reader or door lock.
-def test_auth(tag, members:Members = None, roles:Roles=None):
+def test_auth(tag:str,l:Logger, members:Members = None, roles:Roles=None):
     if members is None:
         members = Members()
     if roles is None:
@@ -227,14 +217,14 @@ def test_auth(tag, members:Members = None, roles:Roles=None):
     # Function used to test the authentication code
     member = members.get_by_tag(tag)
 
-    log("Tag scanned: {} {}".format(tag, wiegandify(tag)))
+    l.log("Tag scanned: {} {}".format(tag, wiegandify(tag)), verbose=2)
     if member == None:
         return False, "Could not find member with tag {}.".format(tag)
     
     # Check the rules for this member
     if (member['Custom access']):
         has_access, reason = roles.doorcheck_by_rules(member['Custom access'])
-        log("Custom rules have been defined for {}. Overriding default {} rules.".format(member['Name'], member['Plan']))
+        l.log("Custom rules have been defined for {}. Overriding default {} rules.".format(member['Name'], member['Plan']),verbose=3)
     else:
         has_access, reason = roles.doorcheck_by_plan(member['Plan'])
     

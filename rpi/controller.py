@@ -147,10 +147,10 @@ class Board(object):
 class Members(object):
     def __init__(self, filename=membership_file):
         f = open(filename, 'r')
-        self.members = [i for i in csv.DictReader(f, delimiter=',')]
+        self.members_list = [i for i in csv.DictReader(f, delimiter=',')]
 
     def get_by_tag(self, tag_id):
-        for m in self.members:
+        for m in self.members_list:
             if tag_id == wiegandify(format_id(m['RFID'])):
                 return m
         return None
@@ -238,4 +238,3 @@ def test_auth(tag:str,l:Logger, members:Members = None, roles:Roles=None):
 # For normal operation, it should fire the run() function.
 if __name__ == "__main__":
     run()
-    

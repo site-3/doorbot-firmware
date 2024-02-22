@@ -202,6 +202,7 @@ def run():
             l.log("Granted access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason), verbose=1)
         else:
             l.log("Denied access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason), verbose=1)
+        l.push_logs(nDays=timedelta(days=1))
 
 
 # This is used to test this script without using the actual board, RFID reader or door lock.

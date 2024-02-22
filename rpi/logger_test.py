@@ -32,3 +32,11 @@ def test_log_file_str():
     logger.log_folder = "folder/"
     log_file = logger.Logger().get_log_file_str(datetime(year=1924, month=1, day=2),mk_log_dr=False)
     assert log_file == "folder/1924/log_1_2.txt"
+
+def test_log_committing():
+    # logger.log_folder = "<put the path to the doorbotlog repo>"
+    now = datetime.now().__sub__(timedelta(days=365*30)) #this is so that you wont accidentally have a present day test log.
+    log = logger.Logger(5, True)
+    log.log("this is a test message", now, 0)
+    log.push_logs(now=now, force=True)
+    # this should have more testing characteristics instead of just being to debug... but thats a future me problem

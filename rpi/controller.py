@@ -49,43 +49,40 @@ def check_access(rules, time:datetime=None):
         # Access is never granted for that person
         reason = "access is never granted"
         result = False
+    
+    # leave this now, so we don't need an else spot.
+    if rules[0][0][0] in ['ALWAYS', 'NEVER']:
+        return result, reason
+    
+    # Day and time rules are associated with that person
+    # If a time isn't passed as argument, check against the current time
+    if time is None:
+        time=datetime.now()
+    
+    # Process rules
+    thisDay = _days[time.weekday()]
+    thisHour = time.hour
+    thisMinute = time.minute
+    
+    for rule in rules:
+        # Check day
+        if rule[0][0] == thisDay:
+            # Day matches
+            if not rule[0][1]:
+                # If times are not specified, access is granted for that whole day
+                result = True
+            else:
+                # If times are specified, check that we are within the interval
+                startHour, startMinute = map(int, rule[0][1].split(':'))
+                endHour, endMinute = map(int, rule[0][2].split(':'))
+                
+                result = (startHour*60+startMinute <= thisHour*60+thisMinute <= endHour*60+endMinute)
+            break #we've found out if they're allowed in today. No more need to check
+    
+    if (result):
+        reason = "is during allowed hours {}".format(rules)        
     else:
-        # Day and time rules are associated with that person
-        
-        # If a time isn't passed as argument, check against the current time
-        if time is None:
-            time=datetime.now()
-        
-        # Process rules
-        thisDay = time.weekday()
-        thisHour = time.hour
-        thisMinute = time.minute
-        
-        for rule in rules:
-            # Check day
-            if rule[0][0] == days[thisDay]:
-                # Day matches
-                if not rule[0][1]:
-                    # If times are not specified, access is granted for that whole day
-                    result = True
-                else:
-                    # If times are specified, check that we are within the interval
-                    startHour, startMinute = map(int, rule[0][1].split(':'))
-                    endHour, endMinute = map(int, rule[0][2].split(':'))
-                    
-                    if (startHour*60+startMinute <= thisHour*60+thisMinute <= endHour*60+endMinute):
-                        result = True
-        
-        if (result):
-            if (verbose_log):
-                reason = "%s (%s) is during allowed hours %s" % (time, days[thisDay], rules)
-            else:
-                reason = "it is during allowed hours"
-        else:
-            if (verbose_log):
-                reason = "%s (%s) is not during allowed hours %s" % (time, days[thisDay], rules)
-            else:
-                reason = "it is outside allowed hours"
+        reason = "it is outside allowed hours {}".format(rules)
                 
     return result, reason
 

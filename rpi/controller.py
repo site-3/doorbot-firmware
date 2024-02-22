@@ -39,22 +39,17 @@ _days = {
 #   MON                       : Access can be granted to a whole day (e.g. MON for every Monday)
 #   MON 16:00-24:00           : Access can be granted to a specified time interval (in 24 hour format)
 def check_access(rules, time:datetime=None):
-    # Don't grant access by default
-    result = False
     rules = list(rules)
     if rules[0][0][0] == 'ALWAYS':
         # Access is always granted for that person
-        reason = "access is always granted"
-        result = True
+        return True, "access is always granted"
     elif rules[0][0][0] == 'NEVER':
         # Access is never granted for that person
-        reason = "access is never granted"
-        result = False
+        return False, "access is never granted"
     
-    # leave this now, so we don't need an else spot.
-    if rules[0][0][0] in ['ALWAYS', 'NEVER']:
-        return result, reason
-    
+    # Don't grant access by default
+    result = False
+
     # Day and time rules are associated with that person
     # If a time isn't passed as argument, check against the current time
     if time is None:

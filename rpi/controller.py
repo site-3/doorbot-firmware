@@ -163,15 +163,16 @@ class Members(object):
 # at the specified time.
 class Roles(object):
     def __init__(self, filename=roles_file):
-           f = open(filename, 'r')
+        f = open(filename, 'r')
            
-           self.rules = {}
-           
-           for line in csv.DictReader(f, delimiter=','):
-               plan = line['Plan']
-               times = line['Open times']
-               
-               self.rules[plan] = process_rules(times)
+        self.rules = {}
+        
+        for line in csv.DictReader(f, delimiter=','):
+            plan = line['Plan']
+            times = line['Open times']
+            
+            self.rules[plan] = process_rules(times)
+        f.close()
     
     def get_by_plan(self, plan):
         return self.rules[plan]
@@ -210,6 +211,7 @@ def test_auth(tag:str,l:Logger, members:Members = None, roles:Roles=None):
     if members is None:
         members = Members()
     if roles is None:
+        #A new roles object should be generated each time. I don't know why, but it corrupts the role after testing against it.
         roles = Roles()
     # Function used to test the authentication code
     member = members.get_by_tag(tag)

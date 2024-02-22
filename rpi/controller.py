@@ -186,7 +186,7 @@ class Roles(object):
 # It runs all the time during normal operation
 def run():
     b = Board()
-    l = Logger(0)
+    l = Logger(5)#put a number from 0-5 here, if the logs are getting too large, try lowering this
     l.log("started.", verbose=4)
 
     while True:

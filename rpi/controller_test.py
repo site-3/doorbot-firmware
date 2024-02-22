@@ -50,13 +50,15 @@ def local_test_member_at_time(member, time):
     logger.log_folder="rpi/test_files/test_logs/"
     roles = controller.Roles(filename="rpi/test_files/testRoles.csv")
     ok, reason = controller.check_access(roles.rules[member['Plan']], time=time)
+    logger.Logger(verbose=5, setupRepo=False).log(reason, when=time, verbose=5)
     return ok, reason
 
 
 def local_test_auth(tag):
     logger.log_folder="rpi/test_files/test_logs/"
-    log = logger.Logger(5)
+    log = logger.Logger(debugMode=True, setupRepo=False)
     members = controller.Members(filename="rpi/test_files/testMembers.csv")
     roles = controller.Roles(filename="rpi/test_files/testRoles.csv")
     ok, reason = controller.test_auth(wiegandify(tag), log, members, roles)
+    log.log(reason, verbose=5)
     return ok, reason

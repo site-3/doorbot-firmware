@@ -21,8 +21,15 @@ board_port_name = "/dev/ttyAMA0"
 membership_file = "/home/pi/members.csv"
 roles_file = "/home/pi/rules.csv"
 
-# Set this to True during debugging, and to False during normal operation, to manage log size
-verbose_log = True
+_days = {
+    0 : "MON",
+    1 : "TUE",
+    2 : "WED",
+    3 : "THU",
+    4 : "FRI",
+    5 : "SAT",
+    6 : "SUN"
+}
 
 # This function checks if a given time is within the rules
 # Rules are specified as a list of strings, of the following format
@@ -31,16 +38,6 @@ verbose_log = True
 #   MON                       : Access can be granted to a whole day (e.g. MON for every Monday)
 #   MON 16:00-24:00           : Access can be granted to a specified time interval (in 24 hour format)
 def check_access(rules, time:datetime=None):
-    days = {
-    0 : "MON",
-    1 : "TUE",
-    2 : "WED",
-    3 : "THU",
-    4 : "FRI",
-    5 : "SAT",
-    6 : "SUN"
-    }
-    
     # Don't grant access by default
     result = False
     rules = list(rules)
@@ -195,7 +192,7 @@ def run():
 
     while True:
         tag = b.get_tag()
-        has_access, reason = test_auth(tag)
+        has_access, reason = test_auth(tag, l)
         member = Members().get_by_tag(tag)
         if member is None:
             l.log(reason, verbose=2)

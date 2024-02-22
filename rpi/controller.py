@@ -2,13 +2,14 @@
 #
 # Determines whether a fob ID belongs to a current member
 # (defined in members.csv)
-# and detemines whether they currently have access to the shop
+# and determines whether they currently have access to the shop
 # based on current time and member roles 
 # (defined in roles.csv)
 #
 # Original code by Paul Walker (https://github.com/pauldw/door-troll-firmware)
 # Edited by Kate Murphy - hi@kate.io - Jan 2016
 # Edited by Thomas Guignard - tom@timtom.ca - May 2016 & Dec 2018
+# Edited by Jonah Wilmsmeyer- jonah@site3.ca- Feb 2024
 
 import serial
 import time

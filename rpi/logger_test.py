@@ -8,16 +8,16 @@ def test_logging():
     logger.log_folder="rpi/test_files/test_logs/"
     msg = "test1"
     #first we should cleanup that log folder.
-    l = logger.Logger(debugMode=True, setupRepo=False)
+    logger = logger.Logger(debugMode=True, setupRepo=False)
     now = datetime.now().__sub__(timedelta(days=365*30)) #this is so that you wont accidentally have a present day test log.
 
     #if the log already exists, we remove it to test from a clean slate
-    if os.path.exists(l.get_log_file_str(now)):
-        os.remove(l.get_log_file_str(now))
+    if os.path.exists(logger.get_log_file_str(now)):
+        os.remove(logger.get_log_file_str(now))
 
-    l.log(msg, when=now, verbose=0)#this is an item that should always be logged
+    logger.log(msg, when=now, verbose=0)#this is an item that should always be logged
 
-    f = open(l.get_log_file_str(now))
+    f = open(logger.get_log_file_str(now))
     lines = f.readlines()
     f.close
 

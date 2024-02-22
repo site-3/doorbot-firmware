@@ -185,28 +185,28 @@ class Roles(object):
 # # # # THIS IS THE MAIN FUNCTION # # # #
 # It runs all the time during normal operation
 def run():
-    b = Board()
-    l = Logger(5)#put a number from 0-5 here, if the logs are getting too large, try lowering this
-    l.log("started.", verbose=4)
+    board = Board()
+    logger = Logger(5)#put a number from 0-5 here, if the logs are getting too large, try lowering this
+    logger.log("started.", verbose=4)
 
     while True:
-        tag = b.get_tag()
-        has_access, reason = test_auth(tag, l)
+        tag = board.get_tag()
+        has_access, reason = test_auth(tag, logger)
         member = Members().get_by_tag(tag)
         if member is None:
-            l.log(reason, verbose=2)
+            logger.log(reason, verbose=2)
             continue
         # Grant access
         if (has_access):
-            b.unlock()
-            l.log("Granted access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason), verbose=1)
+            board.unlock()
+            logger.log("Granted access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason), verbose=1)
         else:
-            l.log("Denied access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason), verbose=1)
-        l.push_logs(nDays=timedelta(days=1))
+            logger.log("Denied access to {} (of type {}) because {}".format(member['Name'], member['Plan'], reason), verbose=1)
+        logger.push_logs(nDays=timedelta(days=1))
 
 
 # This is used to test this script without using the actual board, RFID reader or door lock.
-def test_auth(tag:str,l:Logger, members:Members = None, roles:Roles=None):
+def test_auth(tag:str,logger:Logger, members:Members = None, roles:Roles=None):
     if members is None:
         members = Members()
     if roles is None:
@@ -215,14 +215,14 @@ def test_auth(tag:str,l:Logger, members:Members = None, roles:Roles=None):
     # Function used to test the authentication code
     member = members.get_by_tag(tag)
 
-    l.log("Tag scanned: {} {}".format(tag, wiegandify(tag)), verbose=2)
+    logger.log("Tag scanned: {} {}".format(tag, wiegandify(tag)), verbose=2)
     if member == None:
         return False, "Could not find member with tag {}.".format(tag)
     
     # Check the rules for this member
     if (member['Custom access']):
         has_access, reason = roles.doorcheck_by_rules(member['Custom access'])
-        l.log("Custom rules have been defined for {}. Overriding default {} rules.".format(member['Name'], member['Plan']),verbose=3)
+        logger.log("Custom rules have been defined for {}. Overriding default {} rules.".format(member['Name'], member['Plan']),verbose=3)
     else:
         has_access, reason = roles.doorcheck_by_plan(member['Plan'])
     
